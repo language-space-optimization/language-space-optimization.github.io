@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Strategist -- an advanced agent.">
+  <meta name="keywords" content="LLM Agents, deception, cooperation, Avalon, AvalonBench">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Strategist: Learning Strategic Skills by LLMs via Bi-Level Tree Search</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/explorer-index.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <!-- <a class="navbar-item" href="https://github.com/HenryCai11">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a> -->
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          More Research
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="https://avalonbench.github.io">
+            <span class="small-caps">AvalonBench</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title"><span class="textsc">Strategist</span>: Learning Strategic Skills by LLMs via Bi-Level Tree Search</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://jonathanmli.github.io/">Jonathan Light</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://github.com/HenryCai11">Min Cai</a><sup>2</sup>,</span>
+            <span class="author-block">
+              <a href="https://weiqinchen7.github.io/">Weiqin Chen</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://guanzhi.me">Guanzhi Wang</a><sup>5</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://xiusic.github.io">Xiusi Chen</a><sup>3</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=PRrGVmoAAAAJ&hl=zh-CN">Wei Cheng</a><sup>4</sup>,
+            </span>
+            <span class="author-block">
+              <a href="http://www.yisongyue.com">Yisong Yue</a><sup>5</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://acbull.github.io/">Ziniu Hu</a><sup>5</sup>,
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Rensselaer Polytechnic Institute,</span>
+            <span class="author-block"><sup>2</sup>Shenzhen University</span>
+            <span class="author-block"><sup>3</sup>University of California, Los Angeles</span>
+            <span class="author-block"><sup>4</sup>NEC laboratories America</span>
+            <span class="author-block"><sup>5</sup>California Institute of Technology</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://openreview.net/pdf?id=UHWBmZuJPF"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2408.10635"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/jonathanmli/Avalon-LLM"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+              <span class="link-block">
+                <a href="https://colab.research.google.com/drive/1CKfl-n3OnA5_Vq0Z6ZtefdaqT7Dj728e?usp=sharing"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <img src="https://colab.research.google.com/img/colab_favicon_256px.png" alt="Google Colab">
+                  </span>
+                  <span>Colab</span>
+                </a>
+              </span>
+              <!-- Video Link. -->
+              <span class="link-block">
+                <a href="https://www.youtube.com/watch?v=Qz6NFMv3ug0"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- <section class="video-section">
+  <h1 class="video-title">Summary of <span class="textsc">Strategist</span></h1>
+  <div class="video-container">
+    <iframe src="https://www.youtube.com/watch?v=Qz6NFMv3ug0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
+</section> -->
+
+<!-- TODO: put a vedio clip here -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="./static/videos/strategist-demo.mp4"
+                type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered">
+        <span class="textsc">Strategist</span>(GPT-4-turbo)🤖 playing against rule-based bots in <span class="textsc">AvalonBench</span>
+      </h2>
+    </div>
+  </div>
+</section>
+
+<!-- TODO: put a vedio clip here -->
+<!-- <section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="./static/videos/single_llm_gpt_4.mp4"
+                type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered">
+        <span>GPT-4-turbo</span>🤖 playing against rule-based bots in <span class="textsc">AvalonBench</span>
+      </h2>
+    </div>
+  </div>
+</section> -->
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            We explore the potential of Large Language Models (LLMs) Agents in
+            playing the strategic social deduction game, Resistance Avalon.
+          </p>
+          <p>  
+            In this paper, we propose a new method <span class="textsc">Strategist</span> that utilizes LLMs to acquire new skills
+            for playing multi-agent games through a self-improvement process. Our method gathers quality 
+            feedback through self-play simulations with Monte Carlo tree search and LLM-based reflection, 
+            which can then be used to learn high-level strategic skills such as how to evaluate states that 
+            guide the low-level execution. We showcase how our method can be used in both action planning and 
+            dialogue generation in the context of games, achieving good performance on both tasks.
+          <p>
+            Specifically, we demonstrate that our method can help train agents with better performance than both traditional 
+            reinforcement learning-based approaches and other LLM-based skill learning approaches in the games 
+            of Game of Pure Strategy (GOPS) and Resistance: Avalon.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Method</h2>
+        <h3 class="title is-4">Overview of <span class="textsc">Strategist</span></h3>
+        <div class="content has-text-justified">
+          <figure class="wrap-around-figure">
+            <img src="./static/images/overview.png" alt="Overview of Strategist">
+            <figcaption>Overview of Strategist. Our method learns high-level skills/strategies through figuring out how to search 
+              and improve previously learned strategies. We use low-level self-play simulations to guide the high-level search 
+              process.</figcaption>
+          </figure>
+          <p>
+            Our improvement process contains two improvement steps in each improvement cycle --  
+            the (1) reflection and idea generation step and (2) the strategy improvement step. 
+            During the idea generation step we prompt the LLM to reflect on simulated self-play 
+            feedback from previously evaluated strategies and generate possible improvement ideas 
+            to the strategies and add them to the idea queue. During the strategy improvement step, 
+            we select a strategy from the strategy tree and an improvement idea from the idea queue 
+            and prompt the LLM to improve the strategy using the improvement idea. The improved 
+            strategy is then evaluated via self-play simulations, and we use the feedback and reward 
+            signals from the simulation to help guide future improvements.
+          </p>
+          <p>
+            The general goal in our decision-making setting is to learn a good policy function in 
+            a sequential decision-making setting (generally formulated as a partially observable 
+            Markov decision game (POMDG)), which can be done by improving strategies associated with 
+            the policy function. We describe in more detail what a strategy looks like, how we derive 
+            a policy function from a strategy, and how to acquire feedback for the strategy for both 
+            dialogue generation and action generation here. 
+          </p>
+        </div>
+        <h3 class="title is-4">Skill Coach Improvement of <span class="textsc">Strategist</span></h3>
+        <div class="content has-text-justified">
+          <div class="carousel results-carousel">
+            <div class="box m-5">
+              <div class="content has-text-centered">
+                <figure class="figure">
+                  <img src="./static/images/skill-improve.png" alt="Overview of Skill Improve">
+                  <figcaption>
+                    Overview of our skill coach improvement method. There are two improvement steps –
+                    the idea generation step and the strategy improvement step and we alternate between the two.
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+            <div class="box m-5">
+              <div class="content has-text-centered">
+                <img src="static/images/psuedocode.png" alt="image name"/>
+              </div>
+            </div>
+          </div>
+          <p>
+            During the <b>idea generation step</b>, a strategy and its simulated trajectory 
+            feedback is first selected from the strategy tree according to the 
+            adaptive selection policy. The feedback usually trajectories from previous self-play 
+            simulations, including the states visited, actions taken at those states, the estimated 
+            win-rate at that state, the final outcome of the trajectory, and any intermediate values 
+            used during simulations at those states. Since these trajectories are very long (around 
+            30 steps each for Avalon), we select some key states in the trajectory to translate into 
+            natural language. We then prompt the LLM to reflect on this feedback and propose a couple 
+            of new ideas on how to improve the function. These new ideas are added to the idea queue, 
+            along with a score prior to how good the idea is. 
+          </p>
+          <p>
+            During the <b>strategy improvement step</b>, we first select a strategy and an idea 
+            from the libraries using the adaptive selection policy. We then prompt the LLM to implement 
+            the idea of the strategy, generating a new improved strategy. We then evaluate the strategy 
+            using the evaluator, which conducts self-play simulations with the strategy, and records the 
+            simulated trajectory data. During simulations, players conduct an MCTS tree search to estimate 
+            the expected win-rate at different states, which provides additional feedback. We add the 
+            improved strategy (and its performance) to the strategy tree, and update the improvement 
+            score for the idea that was used. 
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3"><span class="textsc">Strategist</span> Main Results</h2>
+        <!-- <h3 class="title is-4">Overview of <span class="textsc">Strategist</span></h3> -->
+        <div class="content has-text-justified">
+          <div class="content has-text-centered">
+            <img src="static/images/example-performance.png" alt="image name" width="80%"/>
+          </div>
+          <div class="content">
+            <p>We demonstrate the effectiveness of our self-improvement process through experiments against different improvement benchmarks. We tested our method on (1) <a href="https://en.wikipedia.org/wiki/Goofspiel">GOPS</a>, a two-player zero-sum card game and (2) <a href="https://en.wikipedia.org/wiki/The_Resistance_(game)">Avalon</a>, a five or more player team-based discussion game.  For Avalon dialogue generation, we specifically benchmark on the Merlin role, since that is the hardest role to play.</p>
+            <p><b>Different LLM Improvement Methods</b>. We demonstrate the effectiveness of our strategy improvement method by benchmarking it against four other skill-improvement methods.</p>
+            <p><b>LLM-improvement vs. Reinforcement Learning (RL) Training</b>. We demonstrate the effectiveness of our method against traditional RL-based approaches to learning a good policy. Specifically, we show that our method is able to learn a value heuristic function more efficiently than deep RL, the approach taken by AlphaGo and MuZero.</p>
+            <p><b>Feedback Quality and Reward Signal</b>. We benchmark our feedback acquisition method against (1) using a <b>LLM-critic</b>  and (2) trajectory feedback from interactions against a <b>fixed opponent policy</b>.</p>
+          </div>
+          <div class="carousel results-carousel">
+            <div class="box m-5">
+              <div class="content has-text-centered">
+                <img src="static/images/comparison-rl.png" alt="image name" width="100%"/>
+                <img src="static/images/comparison-self-improve.png" alt="image name" width="100%"/>
+              </div>
+            </div>
+            <!-- <div class="box m-5">
+              <div class="content has-text-centered">
+                <img src="static/images/comparison-self-improve.png" alt="image name" width="100%"/>
+              </div>
+            </div> -->
+            <div class="box m-5">
+              <div class="content has-text-centered">
+                <img src="static/images/compute-budget.png" alt="image name" width="50%"/>
+              </div>
+            </div>
+            <!-- <div class="box m-5">
+              <div class="content has-text-centered">
+                <img src="static/images/example-performance.png" alt="image name" width="80%"/>
+              </div>
+            </div> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Conclusion</h2>
+        <div class="content has-text-justified">
+          <p>
+            In conclusion, we have presented <span>Strategist</span>, a generalizable non-parametric self-improvement 
+            framework that learns and improves skills. Given the rules of the game, our method is able to 
+            learn good strategies to play the game through self-play without task-specific prompting 
+              or human generated policy data.
+          </p>
+          <p>
+            The performance of <span>Strategist</span> suggests that incorporating better guidance, 
+            whether this be through modular high-level search or low-level simulated self-play feedback, 
+            into LLM-improvement processes can greatly enhance the improvement process.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+<!-- <section class="section">
+  <div class="container is-max-desktop">
+    Related Links (AgentBench).
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Related Links</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            Our code is based on <a href="https://llmbench.ai/agent">AgentBench</a>, the first benchmark designed to evaluate LLM-as-Agent across a diverse spectrum of different environments.
+          </p>
+          <p>
+            <span class="textsc">AvalonBench</span> has now been included in their benchmark. See <a href="https://github.com/THUDM/AgentBench/tree/main/src/server/tasks/avalon">here</a> for more details.
+          </p>
+        </div>
+      </div>
+    </div>
+    Related Links (AgentBench). -->
+
+  <!-- </div> -->
+<!-- </section> -->
+
+
+<!-- TODO: add the workshop or arxiv bibtex here -->
+<!-- <section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@inproceedings{
+      light2023from,
+      title={From Text to Tactic: Evaluating {LLM}s Playing the Game of Avalon},
+      author={Jonathan Light and Min Cai and Sheng Shen and Ziniu Hu},
+      booktitle={NeurIPS 2023 Foundation Models for Decision Making Workshop},
+      year={2023},
+      url={https://openreview.net/forum?id=ltUrSryS0K}
+  }</code></pre>
+  </div>
+</section> -->
+
+<section class="forecasting-example" id="example">
+  <div class="container">
+    <h2 class="title is-3">LLM-Improvement Example</h2>
+    <!-- <div class="box query-details-box">
+      <div class="content">
+        <h3 class="title is-5">
+          <i class="fas fa-info-circle"></i> Query Details
+        </h3>
+        <ul>
+          <li><strong>Query Quadruplet:</strong> (2023-11-03, AUS, ?, CHN)</li>
+          <li><strong>Temporal Distance:</strong> 1; therefore, the current date is 2023-11-02</li>
+          <li><strong>Agent Max Steps:</strong> 20</li>
+        </ul>
+      </div>
+      <div class="content">
+        <h3 class="title is-5">
+          <i class="fas fa-question-circle"></i> Query Prompt
+        </h3>
+        <p>Please forecast the relations that <span class="highlight">Australia</span> will take towards <span class="highlight">China</span> on <span class="highlight">November 03, 2023</span> based on historical information up to <span class="highlight">November 02, 2023</span>. I.e., forecast the relation CAMEO codes in query event <span class="highlight">Event(date=2023-11-03, head_entity=ISOCode(AUS), relation=CAMEOCode(?), tail_entity=ISOCode(CHN))</span>.</p>
+      </div>
+    </div> -->
+
+    <div class="box system-prompt-box">
+      <div class="content">
+        <h3 class="title is-5">
+          <i class="fas fa-cogs"></i> System Prompt
+        </h3>
+        <strong>Value heuristic system prompt</strong>
+        <p>You are a function engineer trying to write a function that can evaluate the value of a state in a game. 
+          This is known as a value heuristic, and will be used in look-ahead search algorithms to evaluate the value 
+          of unexplored states. Your goal is to develop a heuristic that is as accurate as possible without being 
+          too expensive to compute. Hence, you are not allowed to runs simulations in the function.</p>
+        <p></p>
+        <strong>Value heuristics function signature</strong>
+        <p>The function (written in python) should be named `evaluate state' and take in a tuple called `state' of the game state as input. 
+          Specifically, the input tuple will be of length 9, and it should return 2 elements. 
+          The first element should be a tuple with 2 floats: the first element being the score you expect player 0 will get at the end of the game, and the second element being the score you expect player 1 will get at the end of the game.
+          The second element should be a dictionary of any important intermediate values that you used to calculate the scores.
+          For example, if you think player 0 will win 12 total points by the end of the game and player 1 will win 8 total points, the function should return (12, 8).
+        </p>
+        <p></p>
+        <p>
+          Make sure your output only includes the code of the function itself in plain text such that it is executable using exec() in python. Any helper functions should be defined within the scope of the function `evaluate state'.
+          Include comments in your code so that it is readable, but everything should be implemented.
+        </p>
+        <p></p>
+        <p>The signature of the function should be as follows:</p>
+        <pre><code class="language-python">
+def evaluate_state(state) -> tuple[tuple[float, float], dict]:
+    score_cards = state[0] # a python list of the score cards (integers) that have been played, in the order they were played
+    player_0_played_cards = state[1] # a python list of the cards (integers) player 0 has played, in the order they were played. 
+    player_1_played_cards = state[2] # a python list of the cards (integers) player 1 has played, in the order they were played. 
+    is_turn = state[3] # bool, true if it is you and your opponent's turn to play, false if it is time to draw a new score card
+    player_0_score = state[4] # float or integer, player 0's score so far
+    player_1_score = state[5] #  float or integer, player 1's score so far
+    score_deck = state[6] # a python set of the score cards (integers) left in the deck, either same length as player_0_hand and player_1_hand or one less since the score card appears before the players play. May be empty
+    player_0_hand = state[7] # a python set of the cards (integers) left in player 0's hand. May be empty
+    player_1_hand = state[8] # a python set of the cards (integers) left in player 1's hand. May be empty
+    # explanation of what we do next
+    ...
+    <intermediate_value1> = value1 
+    # explanation of what we do next
+    ...
+    <intermediate_value2> = value2 
+    # explanation of what we do next
+    ...
+    player_scores = (player_0_expected_score, player_1_expected_score)
+    intermediate_values = {'<intermediate_value1>': intermediate_value1, '<intermediate_value2>': intermediate_value2, ...}
+    return player_scores, intermediate_values # make sure the return is exactly in this format
+        </code></pre>
+        <p>Where you can use your own names for the intermediate values and the values themselves.
+          Please start with "def evaluate state(state):"</p>
+
+        <strong>Dialogue guide system prompt</strong>
+        <p>You are a coach trying to write a section of a strategy guide on how to play a game well.</p>
+        <p></p>
+        <p></p>
+        <p>
+          The specific section of the strategy guide you are writing right now is on how to play the Merlin 
+          role effectively during the discussion phase so that they can win the game. Recall that players often 
+          use the discussion phase to (1) gather information about other players, (2) try to convince other players 
+          of their innocence or guilt, and (3) try to persuade other players of a particular course of action.
+        </p>
+        <p>
+          The game you are interested in is called The Resistance: Avalon. The Resistance: Avalon is the game of 
+          hidden identities and social deduction. There are two teams in the game: Good and Evil. Each player has 
+          a hidden identity (role) and side.
+        </p>
+        <p></p>
+        <strong>Dialogue guide signature</strong>
+        <p>Your guide should be in the form of a worksheet that the student can use to build their speech. You should order the worksheet questions in a way that makes logical sense, and you should have no more than six questions. Your questions should instruct the reader to write parts of their speech.</p>
+        <p></p>
+        <p>The title of your section should be ``Questions to fill out before speaking as the Merlin role''. Below is an example of how your worksheet should look like:</p>
+      </div>
+    </div>
+
+    <div class="box react-process-box">
+    <div class="scroll-container">
+      <!-- Scrollable Content 1 -->
+      <!-- Add more content here for additional Agent ReAct Processes -->
+      <div class="content">
+        <h3 class="title is-5">
+          <i class="fas fa-retweet"></i> LLM-Improvement
+        </h3>
+        <p><strong>GOPS Value Heuristics Function (Before)</strong></p>
+        <pre><code class="language-python">
+def evaluate_state(state) -> tuple[tuple[float, float], dict]:
+    score_cards = state[0]
+    player_0_played_cards = state[1]
+    player_1_played_cards = state[2]
+    is_turn = state[3]
+    player_0_score = state[4]
+    player_1_score = state[5]
+    score_deck = state[6]
+    player_0_hand = state[7]
+    player_1_hand = state[8]
+    
+    # Calculate the potential scores for each player based on the remaining score cards
+    player_potential_score = player_0_score
+    opponent_potential_score = player_1_score
+    
+    if len(score_deck) > 0:
+        remaining_score_cards = len(score_deck)
+        if len(player_0_played_cards) > len(player_1_played_cards):
+            player_potential_score += remaining_score_cards / 2
+        elif len(player_1_played_cards) > len(player_0_played_cards):
+            opponent_potential_score += remaining_score_cards / 2
+    
+    player_advantage = player_potential_score - opponent_potential_score
+    
+    return (player_potential_score, opponent_potential_score), {'player_advantage': player_advantage}
+        </code></pre>
+        <p><strong>Selected GOPS Value Heuristics Improvement Idea</strong></p>
+        <p>Update the function to calculate the advantage of winning future rounds based on the 
+          potential scores each player could achieve with the remaining score cards and their current 
+          scores. This would involve considering the number of cards left in the deck, the players' 
+          hands, and the current scores to determine the advantage one player may have over the other 
+          in the upcoming rounds.
+        </p>
+        <p><strong>GOPS Value Heuristics Function (After)</strong></p>
+        <pre><code class="language-python">
+def evaluate_state(state) -> tuple[tuple[float, float], dict]:
+    score_cards = state[0] 
+    player_0_played_cards = state[1] 
+    player_1_played_cards = state[2] 
+    is_turn = state[3] 
+    player_0_score = state[4] 
+    player_1_score = state[5] 
+    score_deck = state[6] 
+    player_0_hand = state[7] 
+    player_1_hand = state[8] 
+    
+    # Calculate the potential scores for each player based on the remaining score cards 
+    # and current scores
+    player_potential_score = player_0_score + sum(score_deck) / 2
+    opponent_potential_score = player_1_score + sum(score_deck) / 2
+    
+    # Determine the advantage of winning future rounds based on potential score
+<mark>    if is_turn:
+        player_potential_scores = [player_potential_score + card for card in player_0_hand]
+        opponent_potential_scores = [opponent_potential_score + card for card in player_1_hand]
+        
+        player_advantage = sum(player_potential_scores) / len(player_potential_scores) 
+        - sum(opponent_potential_scores) / len(opponent_potential_scores)
+    else:
+        player_advantage = player_potential_score - opponent_potential_score</mark>
+    
+    return (player_potential_score, opponent_potential_score), {'player_advantage': player_advantage}
+        </pre></code>
+        <p><strong>LLM-generated Value Heuristic for Avalon (Before)</strong></p>
+        <pre><code class="language-python">def evaluate_state(state):
+    num_successful_quests = sum(historical_quest_results)
+    num_failed_quests = len(historical_quest_results) - num_successful_quests
+    num_remaining_quests = len(num_participants_per_quest) - len(historical_quest_results)
+
+    num_evil = len(players) - num_good
+    num_evil_in_quest_team = len([player for player in quest_team if not is_good[player]])
+
+    success_probability = 0.5
+    if phase == 0: 
+        if num_successful_quests >= 3:
+            success_probability = 0.9
+        elif num_failed_quests >= 3:
+            success_probability = 0.1
+    elif phase == 1: 
+        success_probability = 0.8 if num_evil_in_quest_team == 0 else 0.2
+    elif phase == 2: 
+        success_probability = 0.9 if num_successful_quests > num_failed_quests else 0.1
+    elif phase == 3: 
+        if 'Merlin' in roles and 'Assassin' in roles:
+            merlin_index = roles.index('Merlin')
+            assassin_index = roles.index('Assassin')
+            if assassin_index in quest_team:
+                success_probability = 0.1
+            else:
+                success_probability = 0.9 
+
+    expected_winrates_per_player = dict()
+    for player in players:
+        if is_good[player]:
+            expected_winrates_per_player[player] = success_probability
+        else:
+            expected_winrates_per_player[player] = 1 - success_probability
+
+    intermediate_values = {
+        'num_successful_quests': num_successful_quests,
+        'num_failed_quests': num_failed_quests,
+        'num_remaining_quests': num_remaining_quests,
+        'num_evil_in_quest_team': num_evil_in_quest_team
+    }
+
+    return expected_winrates_per_player, intermediate_values
+        </code></pre>
+        <p><strong>Avalon Value Heuristics Function Improvement Idea</strong></p>
+        <p>Incorporate a more nuanced success probability calculation based on the roles of the players 
+          and the current phase of the game. For example, in phase 1 (team selection), consider the balance 
+          of Good and Evil players on the quest team and adjust the success probability accordingly. 
+          This can help better reflect the strategic considerations during team selection.
+        </p>
+        <p><strong>LLM-generated Value Heuristic for Avalon (After)</strong></p>
+        <pre><code class="language-python">
+def evaluate_state(state: dict) -> tuple[dict[int, float], dict]:
+    
+    prob_good_victory = 0.5  # probability that Good will win
+
+    if phase == 0:  # team selection phase
+<mark>        num_successful_quests = sum(historical_quest_results)
+        num_failed_quests = len(historical_quest_results) - num_successful_quests
+        num_remaining_quests = len(num_participants_per_quest) - len(historical_quest_results)
+        num_evil = len(players) - num_good
+        num_evil_in_quest_team = len([player for player in quest_team if not is_good[player]])
+
+        if num_successful_quests >= 3:
+            prob_good_victory = 0.9
+        elif num_failed_quests >= 3:
+            prob_good_victory = 0.1
+
+        intermediate_value1 = {'num_successful_quests': num_successful_quests, 'num_failed_quests': num_failed_quests,
+                               'num_remaining_quests': num_remaining_quests}
+        intermediate_value2 = {'num_evil_in_quest_team': num_evil_in_quest_team}
+
+    elif phase == 1:  # team approval phase
+        num_evil_in_quest_team = len([player for player in quest_team if not is_good[player]])
+
+        prob_good_victory = 0.8 if num_evil_in_quest_team == 0 else 0.2
+
+        intermediate_value1 = {'num_evil_in_quest_team': num_evil_in_quest_team}
+        intermediate_value2 = {}  # Initialize empty dictionary to avoid the error
+
+    elif phase == 2:  # quest phase
+        num_successful_quests = sum(historical_quest_results)
+        num_failed_quests = len(historical_quest_results) - num_successful_quests
+
+        prob_good_victory = 0.9 if num_successful_quests > num_failed_quests else 0.1
+
+        intermediate_value1 = {'num_successful_quests': num_successful_quests, 'num_failed_quests': num_failed_quests}
+        intermediate_value2 = {}  # Initialize empty dictionary to avoid the error </mark>
+        </code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="box final-status-box">
+      <div class="scroll-container">
+        <!-- Scrollable Content 1 -->
+        <!-- Add more content here for additional Agent ReAct Processes -->
+        <div class="content">
+          <h3 class="title is-5">
+            <i class="fas fa-retweet"></i> Dialogue Guide Improvement
+          </h3>
+          <p><strong>Dialogue guide (previous)</strong></p>
+          Questions to fill out before speaking as the Merlin role
+          <ol>
+            <li>Who are the players you suspect are on the Evil side and why?</li>
+            <li>Draft a subtle statement that casts doubt on these players without directly accusing them.</li>
+            <li>Who is the current round leader and which players are you considering to suggest for the team?</li>
+            <li>Create a subtle suggestion that influences the leader's team decision towards your preferred team without revealing your knowledge.</li>
+            <li>What are the voting patterns you've observed and what do these patterns indicate about the players' identities?</li>
+            <li>Craft a statement to share these observations subtly without giving away your role.</li>
+          </ol>
+          <p><strong>Selected GOPS Value Heuristics Improvement Idea</strong></p>
+          <p>Update the function to calculate the advantage of winning future rounds based on the 
+            potential scores each player could achieve with the remaining score cards and their current 
+            scores. This would involve considering the number of cards left in the deck, the players' 
+            hands, and the current scores to determine the advantage one player may have over the other 
+            in the upcoming rounds.
+          </p>
+          <p><strong>Improvement idea</strong></p>
+          <p>Add a question asking the reader to identify which players they feel most aligned with in terms of strategy and decision-making, and how they can subtly align themselves with these players during the discussion phase.</p>
+          <p><strong>Implementation prompt</strong></p>
+          <p class="texttt">&lt;System prompt&gt;</p>
+          <p class="texttt">&lt;Game rules&gt;</p>
+          <p>You previously generated the following section of the strategy guide:</p>
+          <p class="texttt">&lt;Previous guide&gt;</p>
+          <p>Here is a possible way to improve your guide:</p>
+          <p class="texttt">&lt;Improvement idea&gt;</p>
+          <p>Implement this improvement into the guide section as best as you can, but do not change the original guide too much. Make sure to stay within the scope of the guide section, which we reiterate below:</p>
+          <p class="texttt">&lt;Guide signature&gt;</p>
+
+          <p><strong>Dialogue guide (improved)</strong></p>
+          <p>
+            Questions to fill out before speaking as the Merlin role
+          </p>
+          <ol>
+            <li>Who are the players you suspect are on the Evil side and why?</li>
+            <li>Draft a subtle statement that casts doubt on these players without directly accusing them.</li>
+            <li>Who is the current round leader and which players are you considering to suggest for the team?</li>
+            <li>Create a subtle suggestion that influences the leader's team decision towards your preferred team without revealing your knowledge.</li>
+            <li>What are the voting patterns you've observed and what do these patterns indicate about the players' identities?</li>
+            <li>Craft a statement to share these observations subtly without giving away your role.</li>
+            <li><mark>Which player seems the most aligned with your strategic decisions and why?</mark></li>
+            <li><mark>Produce a statement to subtly align yourself with the player you feel most aligned with during the discussion phase.</mark></li>
+          </ol>
+          </div>
+        </div>
+      </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="https://arxiv.org/pdf/2310.05036.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/jonathanmli/Avalon-LLM" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is website adapted from <a href="https://nerfies.github.io/">Nerfies</a> and <a href="https://mirai-llm.github.io">MIRAI</a>, licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
